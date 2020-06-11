@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 //
 // Designer   : Bob Hu
 //
@@ -37,6 +30,7 @@
 `include "e203_defines.v"
 
 module e203_exu_alu(
+
   //////////////////////////////////////////////////////////////
   // The operands and decode info from dispatch
   input  i_valid, 
@@ -45,8 +39,21 @@ module e203_exu_alu(
   output i_longpipe, // Indicate this instruction is 
                      //   issued as a long pipe instruction
 
+  `ifdef E203_HAS_CSR_EAI//{
+  `ifndef E203_HAS_EAI
+  input  eai_xs_off,
+  `endif//
+  output         eai_csr_valid,
+  input          eai_csr_ready,
+  output  [31:0] eai_csr_addr,
+  output         eai_csr_wr,
+  output  [31:0] eai_csr_wdata,
+  input   [31:0] eai_csr_rdata,
+  `endif//}
+
   output amo_wait,
   input  oitf_empty,
+
                      
   input  [`E203_ITAG_WIDTH-1:0] i_itag,
   input  [`E203_XLEN-1:0] i_rs1,
@@ -103,6 +110,7 @@ module e203_exu_alu(
   output [`E203_XLEN-1:0] wbck_o_wdat,
   output [`E203_RFIDX_WIDTH-1:0] wbck_o_rdidx,
   
+  input  mdv_nob2b,
 
   //////////////////////////////////////////////////////////////
   // The CSR Interface
@@ -218,7 +226,25 @@ module e203_exu_alu(
   wire  [`E203_DECINFO_WIDTH-1:0]  csr_i_info  = {`E203_DECINFO_WIDTH{csr_op}} & i_info;  
   wire                             csr_i_rdwen =                      csr_op   & i_rdwen;  
 
+  `ifndef E203_HAS_EAI//{
+  wire eai_o_cmt_wr_reg;
+  wire csr_sel_eai;
+  `endif//}
+
   e203_exu_alu_csrctrl u_e203_exu_alu_csrctrl(
+
+
+
+  `ifdef E203_HAS_CSR_EAI//{
+    .csr_sel_eai      (csr_sel_eai),
+    .eai_xs_off       (eai_xs_off),
+    .eai_csr_valid    (eai_csr_valid),
+    .eai_csr_ready    (eai_csr_ready),
+    .eai_csr_addr     (eai_csr_addr ),
+    .eai_csr_wr       (eai_csr_wr ),
+    .eai_csr_wdata    (eai_csr_wdata),
+    .eai_csr_rdata    (eai_csr_rdata),
+  `endif//}
     .csr_access_ilgl  (csr_access_ilgl),
 
     .csr_i_valid      (csr_i_valid),
@@ -359,6 +385,7 @@ module e203_exu_alu(
 
 
   e203_exu_alu_lsuagu u_e203_exu_alu_lsuagu(
+
       .agu_i_valid         (agu_i_valid     ),
       .agu_i_ready         (agu_i_ready     ),
       .agu_i_rs1           (agu_i_rs1       ),
@@ -524,6 +551,7 @@ module e203_exu_alu(
   wire [33-1:0] muldiv_sbf_1_r;
 
   e203_exu_alu_muldiv u_e203_exu_alu_muldiv(
+      .mdv_nob2b           (mdv_nob2b),
 
       .muldiv_i_valid      (mdv_i_valid    ),
       .muldiv_i_ready      (mdv_i_ready    ),

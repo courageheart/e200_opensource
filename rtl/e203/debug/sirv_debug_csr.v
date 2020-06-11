@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 //
 // Designer   : Bob Hu
 //
@@ -31,6 +24,7 @@
 //  The module to implement the core's debug control and relevant CSRs
 //
 // ===========================================================================
+`include "e203_defines.v"
 
 module sirv_debug_csr 
 #(

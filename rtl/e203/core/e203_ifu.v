@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 //
 // Designer   : Bob Hu
 //
@@ -34,7 +27,9 @@
 `include "e203_defines.v"
 
 module e203_ifu(
+  output[`E203_PC_SIZE-1:0] inspect_pc,
   output ifu_active,
+  input  itcm_nohold,
 
   input  [`E203_PC_SIZE-1:0] pc_rtvec,  
   `ifdef E203_HAS_ITCM //{
@@ -145,6 +140,7 @@ module e203_ifu(
   wire [`E203_INSTR_SIZE-1:0] ifu_rsp_instr; 
 
   e203_ifu_ifetch u_e203_ifu_ifetch(
+    .inspect_pc   (inspect_pc),
     .pc_rtvec      (pc_rtvec),  
     .ifu_req_valid (ifu_req_valid),
     .ifu_req_ready (ifu_req_ready),
@@ -208,6 +204,7 @@ module e203_ifu(
     .ifu_rsp_err   (ifu_rsp_err  ),
     //.ifu_rsp_replay(ifu_rsp_replay),
     .ifu_rsp_instr (ifu_rsp_instr),
+    .itcm_nohold   (itcm_nohold),
 
   `ifdef E203_HAS_ITCM //{
     .itcm_region_indic (itcm_region_indic),

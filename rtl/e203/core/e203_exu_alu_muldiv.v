@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 //
 // Designer   : Bob Hu
 //
@@ -37,6 +30,7 @@
 
 `ifdef E203_SUPPORT_MULDIV //{
 module e203_exu_alu_muldiv(
+  input  mdv_nob2b,
 
   //////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////
@@ -109,7 +103,7 @@ module e203_exu_alu_muldiv(
   wire i_rem    = muldiv_i_info[`E203_DECINFO_MULDIV_REM   ];
   wire i_remu   = muldiv_i_info[`E203_DECINFO_MULDIV_REMU  ];
       // If it is flushed then it is not back2back real case
-  wire i_b2b    = muldiv_i_info[`E203_DECINFO_MULDIV_B2B   ] & (~flushed_r);
+  wire i_b2b    = muldiv_i_info[`E203_DECINFO_MULDIV_B2B   ] & (~flushed_r) & (~mdv_nob2b);
 
   wire back2back_seq = i_b2b;
 

@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 //
 // Designer   : Bob Hu
 //
@@ -37,6 +30,7 @@
 module e203_ifu_ift2icb(
 
 
+  input  itcm_nohold,
   //////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////
   // Fetch Interface to memory system, internal protocol
@@ -374,7 +368,7 @@ module e203_ifu_ift2icb(
   // The current accessing PC is same as last accessed ICB address
   wire ifu_req_lane_holdup = 1'b0
             `ifdef E203_HAS_ITCM //{
-            | (ifu_req_pc2itcm & ifu2itcm_holdup) 
+            | (ifu_req_pc2itcm & ifu2itcm_holdup & (~itcm_nohold)) 
             `endif//}
             ;
 

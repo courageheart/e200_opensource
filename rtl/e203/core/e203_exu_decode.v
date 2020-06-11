@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -16,13 +16,6 @@
                                                                          
                                                                          
                                                                          
-//=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
 //=====================================================================
 //
 // Designer   : Bob Hu
@@ -504,8 +497,8 @@ module e203_exu_decode(
   assign dec_mulhsu = rv32_mulh | rv32_mulhsu | rv32_mulhu;
   assign dec_mul    = rv32_mul;
   assign dec_div    = rv32_div ;
-  assign dec_rem    = rv32_divu;
-  assign dec_divu   = rv32_rem;
+  assign dec_divu   = rv32_divu;
+  assign dec_rem    = rv32_rem;
   assign dec_remu   = rv32_remu;
  
   // ===========================================================================
@@ -632,6 +625,9 @@ module e203_exu_decode(
                    );
 
   // All the RV32IMA need RS1 register except the
+  //   * lui
+  //   * auipc
+  //   * jal
   //   * fence, fence_i 
   //   * ecall, ebreak  
   //   * csrrwi
@@ -640,7 +636,10 @@ module e203_exu_decode(
   wire rv32_need_rs1 =
                       (~rv32_rs1_x0) & (
                     (
-                      (~rv32_fence_fencei)
+                      (~rv32_lui)
+                    & (~rv32_auipc)
+                    & (~rv32_jal)
+                    & (~rv32_fence_fencei)
                     & (~rv32_ecall_ebreak_ret_wfi)
                     & (~rv32_csrrwi)
                     & (~rv32_csrrsi)

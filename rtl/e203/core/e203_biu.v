@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 //
 // Designer   : Bob Hu
 //
@@ -34,6 +27,7 @@
 `include "e203_defines.v"
 
 module e203_biu(
+
   output                         biu_active,
   //////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////
@@ -948,6 +942,7 @@ module e203_biu(
   assign  ifuerr_icb_rsp_err   = 1'b1;
   assign  ifuerr_icb_rsp_excl_ok = 1'b0;
   assign  ifuerr_icb_rsp_rdata   = {`E203_XLEN{1'b0}};
+
 
 endmodule
 

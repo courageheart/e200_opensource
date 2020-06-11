@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 //
 // Designer   : Bob Hu
 //
@@ -31,6 +24,8 @@
 //  The debug module
 //
 // ====================================================================
+
+`include "e203_defines.v"
 
 module sirv_debug_module
 # (
@@ -41,9 +36,8 @@ module sirv_debug_module
   parameter HART_ID_W = 1
 ) (
 
-  ///////////////////////////////////////
-  // With the core 0 interface
-  input   core_clk,
+  output  inspect_jtag_clk,
+
     // The interface with commit stage
   input   [PC_SIZE-1:0] cmt_dpc,
   input   cmt_dpc_ena,
@@ -121,14 +115,46 @@ module sirv_debug_module
   output [HART_NUM-1:0]      o_ndreset,
   output [HART_NUM-1:0]      o_fullreset,
 
-  input   jtag_reset,
-  input   dm_clk,
-  input   dm_rst_n 
+  input   core_csr_clk,
+  input   hfclk,
+  input   corerst,
+
+  input   test_mode 
 );
+
+
+  wire dm_rst;
+  wire dm_rst_n;
+
+  //This is to reset Debug module's logic, the debug module have same clock domain 
+  //  as the main domain, so just use the same reset.
+ sirv_ResetCatchAndSync_2 u_dm_ResetCatchAndSync_2_1 (
+    .test_mode(test_mode),
+    .clock(hfclk),// Use same clock as main domain
+    .reset(corerst),
+    .io_sync_reset(dm_rst)
+  );
+  
+  assign dm_rst_n = ~dm_rst;
+
+  //This is to reset the JTAG_CLK relevant logics, since the chip does not 
+  //  have the JTAG_RST used really, so we need to use the global chip reset to reset
+  //  JTAG relevant logics
+ wire jtag_TCK;
+ wire jtag_reset;
+
+ sirv_ResetCatchAndSync u_jtag_ResetCatchAndSync_3_1 (
+    .test_mode(test_mode),
+    .clock(jtag_TCK),
+    .reset(corerst),
+    .io_sync_reset(jtag_reset)
+  );
+
+
+  wire dm_clk = hfclk;// Currently Debug Module have same clock domain as core
 
   wire jtag_TDI;
   wire jtag_TDO;
-  wire jtag_TCK;
   wire jtag_TMS;
   wire jtag_TRST;
   wire jtag_DRV_TDO;
@@ -203,7 +229,7 @@ module sirv_debug_module
     .dbg_step_r      (dbg_step_r),
     .dbg_ebreakm_r   (dbg_ebreakm_r),
 
-    .clk             (core_clk),
+    .clk             (core_csr_clk),
     .rst_n           (dm_rst_n ) 
   );
 
@@ -514,5 +540,7 @@ module sirv_debug_module
  
   assign o_ndreset   = {HART_NUM{1'b0}};
   assign o_fullreset = {HART_NUM{1'b0}};
+
+  assign inspect_jtag_clk = jtag_TCK;
 
 endmodule

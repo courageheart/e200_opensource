@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 //
 // Designer   : Bob Hu
 //
@@ -34,6 +27,8 @@
 `include "e203_defines.v"
 
 module e203_ifu_ifetch(
+  output[`E203_PC_SIZE-1:0] inspect_pc,
+
 
   input  [`E203_PC_SIZE-1:0] pc_rtvec,  
   //////////////////////////////////////////////////////////////
@@ -510,6 +505,9 @@ module e203_ifu_ifetch(
   wire pc_ena = ifu_req_hsked | pipe_flush_hsked;
 
   sirv_gnrl_dfflr #(`E203_PC_SIZE) pc_dfflr (pc_ena, pc_nxt, pc_r, clk, rst_n);
+
+
+ assign inspect_pc = pc_r;
 
 
   assign ifu_req_pc    = pc_nxt;

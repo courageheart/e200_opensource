@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -16,13 +16,6 @@
                                                                          
                                                                          
                                                                          
-//=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
 //=====================================================================
 //
 // Designer   : Bob Hu
@@ -420,7 +413,7 @@ generate //{
      assign o_dat = i_dat;
 
   end//}
-  else begin: dp_gt1//{
+  else begin: dp_gt0//{
 
     // FIFO registers
     wire [DW-1:0] fifo_rf_r [DP-1:0];

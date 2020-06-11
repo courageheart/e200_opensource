@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 // Designer   : Bob Hu
 //
 // Description:
@@ -33,6 +26,9 @@
 `include "e203_defines.v"
 
 module e203_lsu(
+  input  commit_mret,
+  input  commit_trap,
+  input  excp_active,
   output  lsu_active,
 
   `ifdef E203_HAS_ITCM //{
@@ -188,10 +184,13 @@ module e203_lsu(
   wire  [`E203_XLEN-1:0]        dcache_icb_rsp_rdata;
   `endif//}
 
+  wire lsu_ctrl_active;
 
 
   e203_lsu_ctrl u_e203_lsu_ctrl(
-    .lsu_ctrl_active       (lsu_active),
+    .commit_mret           (commit_mret),
+    .commit_trap           (commit_trap),
+    .lsu_ctrl_active       (lsu_ctrl_active),
   `ifdef E203_HAS_ITCM //{
     .itcm_region_indic     (itcm_region_indic),
   `endif//}
@@ -322,5 +321,9 @@ module e203_lsu(
     .rst_n                 (rst_n)
   );
 
+  assign lsu_active = lsu_ctrl_active 
+                    // When interrupts comes, need to update the exclusive monitor
+                    // so also need to turn on the clock
+                    | excp_active;
 endmodule
 

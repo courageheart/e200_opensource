@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -17,13 +17,6 @@
                                                                          
                                                                          
 //=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
-//=====================================================================
 // Designer   : Bob Hu
 //
 // Description:
@@ -34,10 +27,14 @@
 `include "e203_defines.v"
 
 module e203_exu(
+  output commit_mret,
+  output commit_trap,
   output exu_active,
+  output excp_active,
 
   output core_wfi,
   output tm_stop,
+  output itcm_nohold,
   output core_cgstop,
   output tcm_cgstop,
 
@@ -166,9 +163,20 @@ module e203_exu(
   input                          agu_icb_rsp_excl_ok,
   input  [`E203_XLEN-1:0]        agu_icb_rsp_rdata,
 
+  `ifdef E203_HAS_CSR_EAI//{
+  output         eai_csr_valid,
+  input          eai_csr_ready,
+  output  [31:0] eai_csr_addr,
+  output         eai_csr_wr,
+  output  [31:0] eai_csr_wdata,
+  input   [31:0] eai_csr_rdata,
+  `endif//}
+
+
 
 
   input  test_mode,
+  input  clk_aon,
   input  clk,
   input  rst_n
   );
@@ -201,6 +209,10 @@ module e203_exu(
     .rst_n         (rst_n        ) 
   );
 
+  wire dec_rs1en;
+  wire dec_rs2en;
+
+
   
   //////////////////////////////////////////////////////////////
   // Instantiate the Decode
@@ -209,8 +221,6 @@ module e203_exu(
   wire [`E203_PC_SIZE-1:0] dec_pc;
   wire dec_rs1x0;
   wire dec_rs2x0;
-  wire dec_rs1en;
-  wire dec_rs2en;
   wire dec_rdwen;
   wire [`E203_RFIDX_WIDTH-1:0] dec_rdidx;
   wire dec_misalgn;
@@ -476,10 +486,24 @@ module e203_exu(
   wire nonflush_cmt_ena;
 
 
+  wire eai_xs_off;
+
   wire csr_access_ilgl;
+
+  wire mdv_nob2b;
 
 
   e203_exu_alu u_e203_exu_alu(
+
+
+  `ifdef E203_HAS_CSR_EAI//{
+    .eai_csr_valid (eai_csr_valid),
+    .eai_csr_ready (eai_csr_ready),
+    .eai_csr_addr  (eai_csr_addr ),
+    .eai_csr_wr    (eai_csr_wr   ),
+    .eai_csr_wdata (eai_csr_wdata),
+    .eai_csr_rdata (eai_csr_rdata),
+  `endif//}
     .csr_access_ilgl     (csr_access_ilgl),
     .nonflush_cmt_ena    (nonflush_cmt_ena),
 
@@ -489,6 +513,7 @@ module e203_exu(
     .i_itag              (disp_alu_itag    ),
     .i_rs1               (disp_alu_rs1     ),
     .i_rs2               (disp_alu_rs2     ),
+    .eai_xs_off          (eai_xs_off),
     .i_rdwen             (disp_alu_rdwen   ),
     .i_rdidx             (disp_alu_rdidx   ),
     .i_info              (disp_alu_info    ),
@@ -566,6 +591,7 @@ module e203_exu(
     
 
 
+    .mdv_nob2b         (mdv_nob2b),
 
     .clk                 (clk          ),
     .rst_n               (rst_n        ) 
@@ -632,6 +658,7 @@ module e203_exu(
     .rst_n               (rst_n        ) 
   );
 
+
   //////////////////////////////////////////////////////////////
   // Instantiate the Final Write-Back
   e203_exu_wbck u_e203_exu_wbck(
@@ -684,10 +711,11 @@ module e203_exu(
   wire msie_r;
   wire meie_r;
 
-  wire excp_active;
 
 
   e203_exu_commit u_e203_exu_commit(
+    .commit_mret         (commit_mret),
+    .commit_trap         (commit_trap),
     .core_wfi            (core_wfi        ),
     .nonflush_cmt_ena    (nonflush_cmt_ena),
 
@@ -807,8 +835,11 @@ module e203_exu(
 
   e203_exu_csr u_e203_exu_csr(
     .csr_access_ilgl     (csr_access_ilgl),
+    .eai_xs_off          (eai_xs_off),
     .nonflush_cmt_ena    (nonflush_cmt_ena),
     .tm_stop             (tm_stop),
+    .itcm_nohold         (itcm_nohold),
+    .mdv_nob2b           (mdv_nob2b),
     .core_cgstop         (core_cgstop),
     .tcm_cgstop          (tcm_cgstop ),
     .csr_ena             (csr_ena),
@@ -862,11 +893,13 @@ module e203_exu(
     .sft_irq_r     (sft_irq_r),
     .tmr_irq_r     (tmr_irq_r),
 
+    .clk_aon       (clk_aon      ),
     .clk           (clk          ),
     .rst_n         (rst_n        ) 
   );
 
   assign exu_active = (~oitf_empty) | i_valid | excp_active;
+
 
 endmodule                                      
                                                

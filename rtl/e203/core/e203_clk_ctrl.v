@@ -1,5 +1,5 @@
  /*                                                                      
- Copyright 2017 Silicon Integrated Microelectronics, Inc.                
+ Copyright 2018 Nuclei System Technology, Inc.                
                                                                          
  Licensed under the Apache License, Version 2.0 (the "License");         
  you may not use this file except in compliance with the License.        
@@ -16,13 +16,6 @@
                                                                          
                                                                          
                                                                          
-//=====================================================================
-//--        _______   ___
-//--       (   ____/ /__/
-//--        \ \     __
-//--     ____\ \   / /
-//--    /_______\ /_/   MICROELECTRONICS
-//--
 //=====================================================================
 //
 // Designer   : Bob Hu
@@ -46,6 +39,7 @@ module e203_clk_ctrl (
 
   // The Top always on clk and rst
   output clk_aon,
+
 
 
   input  core_ifu_active,
@@ -88,6 +82,7 @@ module e203_clk_ctrl (
   wire exu_clk_en = core_cgstop | (core_exu_active);
   wire lsu_clk_en = core_cgstop | (core_lsu_active);
   wire biu_clk_en = core_cgstop | (core_biu_active);
+
 
 
 
